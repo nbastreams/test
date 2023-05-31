@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Sports Games</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            margin-top: 40px;
+        }
+
+        #game-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 40px;
+            width: 100%;
+        }
+
+        .game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            text-align: center;
+        }
+
+        .team-logos {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .team-logo {
+            width: 120px;
+            height: 120px;
+            margin-right: 10px;
+        }
+
+        .game-button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 90%;
+            font-weight: bold;
+        }
+
+        .game-status {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .divider {
+            margin-top: 20px;
+            border: 0;
+            border-top: 2px solid #ddd;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Sports Games</h1>
+
+    <div id="game-list">
+        <h2>MLB Games</h2>
+        <div class="game-container" id="mlb-games"></div>
+        <hr class="divider">
+
+        <h2>NFL Games</h2>
+        <div class="game-container" id="nfl-games"></div>
+        <hr class="divider">
+
+        <h2>NBA Games</h2>
+        <div class="game-container" id="nba-games"></div>
+        <hr class="divider">
+
+        <h2>NHL Games</h2>
+        <div class="game-container" id="nhl-games"></div>
+        <hr class="divider">
+
+        <h2>WNBA Games</h2>
+        <div class="game-container" id="wnba-games"></div>
+        <hr class="divider">
+    </div>
+
+    <script>
+        // Function to create a game element
+        function createGameElement(game) {
+            var gameDiv = document.createElement("div");
+            gameDiv.className = "game";
+
+            var gameStatus = document.createElement("div");
+            gameStatus.className = "game-status";
+            gameStatus.textContent = game.status.type.shortDetail;
+
+            var teamLogos = document.createElement("div");
+            teamLogos.className = "team-logos";
+
+            var awayLogo = document.createElement("img");
+            awayLogo.src = game.competitions[0].competitors[1].team.logo;
+            awayLogo.className = "team-logo";
+
+            var homeLogo = document.createElement("img");
+            homeLogo.src = game.competitions[0].competitors[0].team.logo;
+            homeLogo.className = "team-logo";
+
+            teamLogos.appendChild(awayLogo);
+            teamLogos.appendChild(homeLogo);
+
+            var button = document.createElement("button");
+            button.textContent = "Watch";
+            button.className = "game-button";
+            button.onclick = function() {
+                window.location.href = game.links[0].href;
+            };
+
+            gameDiv.appendChild(gameStatus);
+            gameDiv.appendChild(teamLogos);
+            gameDiv.appendChild(button);
+
+            return gameDiv;
+        }
+
+        // Function to create a divider
+        function createDivider(title) {
+            var divider = document.createElement("hr");
+            divider.className = "divider";
+            var dividerTitle = document.createElement("h2");
+            dividerTitle.textContent = title;
+            dividerTitle.style.textAlign = "center";
+            dividerTitle.style.color = "#333";
+            dividerTitle.style.marginTop = "20px";
+            divider.insertAdjacentElement("beforebegin", dividerTitle);
+            return divider;
+        }
+
+        // Fetch MLB games
+        fetch("http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard")
+            .then(response => response.json())
+            .then(data => {
+                var games = data.events;
+
+                var gameList = document.getElementById("mlb-games");
+                var divider = createDivider("MLB Games");
+                gameList.appendChild(divider);
+
+                games.forEach(function(game) {
+                    var gameElement = createGameElement(game);
+                    gameList.appendChild(gameElement);
+                });
+            })
+            .catch(error => console.log(error));
+
+        // Fetch NFL games
+        fetch("http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard")
+            .then(response => response.json())
+            .then(data => {
+                var games = data.events;
+
+                var gameList = document.getElementById("nfl-games");
+                var divider = createDivider("NFL Games");
+                gameList.appendChild(divider);
+
+                games.forEach(function(game) {
+                    var gameElement = createGameElement(game);
+                    gameList.appendChild(gameElement);
+                });
+            })
+            .catch(error => console.log(error));
+
+        // Fetch NBA games
+        fetch("http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard")
+            .then(response => response.json())
+            .then(data => {
+                var games = data.events;
+
+                var gameList = document.getElementById("nba-games");
+                var divider = createDivider("NBA Games");
+                gameList.appendChild(divider);
+
+                games.forEach(function(game) {
+                    var gameElement = createGameElement(game);
+                    gameList.appendChild(gameElement);
+                });
+            })
+            .catch(error => console.log(error));
+
+        // Fetch NHL games
+        fetch("http://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard")
+            .then(response => response.json())
+            .then(data => {
+                var games = data.events;
+
+                var gameList = document.getElementById("nhl-games");
+                var divider = createDivider("NHL Games");
+                gameList.appendChild(divider);
+
+                games.forEach(function(game) {
+                    var gameElement = createGameElement(game);
+                    gameList.appendChild(gameElement);
+                });
+            })
+            .catch(error => console.log(error));
+
+        // Fetch WNBA games
+        fetch("http://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard")
+            .then(response => response.json())
+            .then(data => {
+                var games = data.events;
+
+                var gameList = document.getElementById("wnba-games");
+                var divider = createDivider("WNBA Games");
+                gameList.appendChild(divider);
+
+                games.forEach(function(game) {
+                    var gameElement = createGameElement(game);
+                    gameList.appendChild(gameElement);
+                });
+            })
+            .catch(error => console.log(error));
+    </script>
+</body>
+</html>
