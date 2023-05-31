@@ -163,7 +163,7 @@
         }
 
         // Fetch MLB games
-        fetch("http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard")
+        fetch("https://cors-anywhere.herokuapp.com/" + "http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard")
             .then(response => response.json())
             .then(data => {
                 var games = data.events;
