@@ -120,40 +120,26 @@
             border-color: #4d94ff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
-
-        /* Custom modal size */
-        .modal-dialog {
-            max-width: 80vw;
-            height: 80vh;
-        }
-
-        .modal-content {
-            height: 100%;
-        }
-
-        .modal-body {
-            height: calc(100% - 120px); /* Adjust for header and footer height */
-        }
-
-        .modal-body iframe {
-            width: 100%;
-            height: 100%;
-        }
     </style>
 </head>
 
 <body>
 
+<body>
+
+
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: black; border-radius: 10px;">
     <div class="container-fluid">
         <a class="navbar-brand" href="#" style="color: white; font-weight: bold;" id="userBrand">
             <img src="" alt="" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
+
         </div>
         <span class="navbar-text" style="color: white; font-weight: bold; margin-right: 10px;">
             <script>document.write(new Date().toLocaleDateString());</script>
@@ -163,7 +149,12 @@
     </div>
 </nav>
 
+
+</body>
+
+
 <div class="container mt-5">
+    <!-- Improved sport switcher dropdown -->
     <div class="mb-3 custom-dropdown">
         <select class="form-control" id="sportSwitcher">
             <option value="NBA">NBA</option>
@@ -176,6 +167,7 @@
         </select>
     </div>
 
+    <!-- Score container -->
     <div class="scrollable-container" id="score-container"></div>
 </div>
 
@@ -187,7 +179,8 @@
 <!-- Axios script -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script type="module">
+<script type ="module">
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
     import { getDatabase, get, ref, child } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
     import {
@@ -220,6 +213,7 @@
     let userNHLData;
     let userMLBData;
 
+
     document.getElementById("sportSwitcher").addEventListener("change", function () {
         getUserData();
         fetchScores();
@@ -238,5 +232,245 @@
                         fNameData = snapshot.val().firstName;
                         lNameData = snapshot.val().lastName;
 
-                        document.getElementById("userBrand").innerHTML = `
-                            <img src="https://d1muf25xaso8hp.cloudfront.net/https%3A%2F%2Fmeta-q.cdn.bubble.io%2Ff1512936020165x278911292087286720%2FA.png?w=&h=&auto=compress&dpr=1&fit=max" alt="Profile Pic" style="
+                        document.getElementById("userBrand").innerHTML = 
+        <img src="https://d1muf25xaso8hp.cloudfront.net/https%3A%2F%2Fmeta-q.cdn.bubble.io%2Ff1512936020165x278911292087286720%2FA.png?w=&h=&auto=compress&dpr=1&fit=max" alt="Profile Pic" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+        ${fNameData} ${lNameData}
+    ;
+
+                        console.log(fNameData + ", " + lNameData + ", " + userNBAData);
+
+                        fetchScores(); // Fetch scores after getting user data
+                    }
+                });
+            } else {
+                console.log("Error getting user data");
+            }
+        });
+    };
+    window.addEventListener('load', getUserData);
+
+    async function fetchScores() {
+
+
+        const selectedSport = document.getElementById("sportSwitcher").value;
+
+        if(selectedSport === "NFL"){
+            userSelectedFavoriteTeam = userNFLData;
+        }else if(selectedSport === "NBA"){
+            userSelectedFavoriteTeam = userNBAData;
+        }else if(selectedSport === "NHL"){
+            userSelectedFavoriteTeam = userNHLData;
+        }else if(selectedSport === "MLB"){
+            userSelectedFavoriteTeam = userMLBData;
+        }else {
+            userSelectedFavoriteTeam = "null";
+        }
+
+        const sportUrls = {
+            NBA: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+            NFL: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
+            NHL: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+            NCAAB: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard',
+            MLB: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
+            NCAAF: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard',
+            WNBA: 'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard',
+        };
+
+        const axiosOptions = {
+            method: 'GET',
+            url: sportUrls[selectedSport],
+        };
+
+        try {
+            const response = await axios.request(axiosOptions);
+            console.log(response.data);
+
+            const scoreContainer = document.getElementById('score-container');
+            scoreContainer.innerHTML = '';
+
+            if (response.data.events && response.data.events.length > 0) {
+                const sortedGames = sortGamesByFavoriteTeam(response.data.events);
+                sortedGames.forEach((game) => {
+                    const gameCard = createGameCard(game);
+                    scoreContainer.appendChild(gameCard);
+                });
+            } else {
+                console.error('No game data available.');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // Helper function to sort games based on the user's favorite team
+    function sortGamesByFavoriteTeam(games) {
+        const userFavoriteTeam = userSelectedFavoriteTeam; // Replace with actual user's favorite team
+
+        return games.sort((a, b) => {
+            const isFavoriteTeamA = isGameInvolvingFavoriteTeam(a, userFavoriteTeam);
+            const isFavoriteTeamB = isGameInvolvingFavoriteTeam(b, userFavoriteTeam);
+
+            if (isFavoriteTeamA && !isFavoriteTeamB) {
+                return -1;
+            } else if (!isFavoriteTeamA && isFavoriteTeamB) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+    }
+
+    // Helper function to check if a game involves the user's favorite team
+    function isGameInvolvingFavoriteTeam(game, favoriteTeam) {
+        return game.competitions[0].competitors.some(competitor =>
+            competitor.team.abbreviation === favoriteTeam
+        );
+    }
+
+    window.onload = fetchScores;
+
+    function createGameCard(gameData) {
+        const card = document.createElement('div');
+        card.className = 'card game-card';
+
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const team1Logo = gameData.competitions[0].competitors[0].team.logo;
+        const team1Abbreviation = gameData.competitions[0].competitors[0].team.abbreviation;
+        const team2Logo = gameData.competitions[0].competitors[1].team.logo;
+        const team2Abbreviation = gameData.competitions[0].competitors[1].team.abbreviation;
+
+        row.innerHTML = 
+            <div class="col-md-2">
+                <img src="${team1Logo}" alt="${team1Abbreviation}" class="img-fluid">
+                <p>${team1Abbreviation}</p>
+            </div>
+            <div class="col-md-8">
+                <p class="score">${gameData.competitions[0].competitors[0].score} - ${gameData.competitions[0].competitors[1].score}</p>
+                <div class="status-box">${getGameStatus(gameData.status.type.shortDetail)}</div>
+              <button class="btn btn-dark box-score-btn" data-toggle="modal" data-target="#boxScoreModal${gameData.id}">Watch Live</button>
+            </div>
+            <div class="col-md-2">
+                <img src="${team2Logo}" alt="${team2Abbreviation}" class="img-fluid">
+                <p>${team2Abbreviation}</p>
+            </div>
+        ;
+
+        cardBody.appendChild(row);
+        card.appendChild(cardBody);
+
+        const modal = createBoxScoreModal(gameData);
+        document.body.appendChild(modal);
+
+        return card;
+    }
+
+    function createBoxScoreModal(gameData) {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = boxScoreModal${gameData.id};
+        modal.tabIndex = -1;
+        modal.role = 'dialog';
+        modal.setAttribute('aria-labelledby', boxScoreModalLabel${gameData.id});
+        modal.setAttribute('aria-hidden', 'true');
+
+        const modalDialog = document.createElement('div');
+        modalDialog.className = 'modal-dialog';
+        modalDialog.role = 'document';
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+
+        const modalHeader = document.createElement('div');
+        modalHeader.className = 'modal-header';
+
+        const modalTitle = document.createElement('h5');
+        modalTitle.className = 'modal-title';
+        modalTitle.id = boxScoreModalLabel${gameData.id};
+        modalTitle.textContent = 'Watch Live';
+
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'close';
+        closeButton.setAttribute('data-dismiss', 'modal');
+        closeButton.setAttribute('aria-label', 'Close');
+
+        const closeIcon = document.createElement('span');
+        closeIcon.setAttribute('aria-hidden', 'true');
+        closeIcon.innerHTML = '&times;';
+
+        closeButton.appendChild(closeIcon);
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeButton);
+
+        const modalBody = document.createElement('div');
+        modalBody.className = 'modal-body';
+
+        modalBody.innerHTML = 
+        <iframe frameborder=0 height=90% width=90% src="https://bestsolaris.com/solaris.php?postid=60706" allowfullscreen scrolling=no allowtransparency></iframe>
+        ;
+
+        const modalFooter = document.createElement('div');
+        modalFooter.className = 'modal-footer';
+
+        const closeButtonFooter = document.createElement('button');
+        closeButtonFooter.type = 'button';
+        closeButtonFooter.className = 'btn btn-secondary';
+        closeButtonFooter.setAttribute('data-dismiss', 'modal');
+        closeButtonFooter.textContent = 'Close';
+
+        modalFooter.appendChild(closeButtonFooter);
+
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modalContent.appendChild(modalFooter);
+
+        modalDialog.appendChild(modalContent);
+        modal.appendChild(modalDialog);
+
+        return modal;
+    }
+
+    function getGameStatus(status) {
+        const statusBox = document.createElement('div');
+        statusBox.className = 'status-box';
+
+        if (status.substring(0, 5) === 'Final') {
+            statusBox.textContent = status;
+            statusBox.style.backgroundColor = '#000000';
+            statusBox.style.maxWidth = '175px';
+        } else if (status.substring(status.length - 3, status.length) === "EST" || status.substring(status.length - 3, status.length) === "EDT") {
+            statusBox.textContent = status;
+            statusBox.style.backgroundColor = '#6c757d';
+            statusBox.style.maxWidth = '210px';
+        } else {
+            statusBox.innerHTML = <span class="blink-dot"></span>&nbsp;${status};
+            statusBox.style.backgroundColor = '#fe4111';
+            statusBox.style.maxWidth = '150px';
+        }
+        return statusBox.outerHTML;
+    }
+
+    let SignOutButton=document.getElementById('signoutbutton');
+    let ProfileButton=document.getElementById('profilebutton');
+
+    let Signout = ()=>{
+        auth.signOut();//signout from the database
+        window.location.href='login.html';//switch the window to login
+    }
+
+    SignOutButton.addEventListener('click', Signout);
+
+    let UpdateProfile = ()=>{
+        window.location.href = 'updateProfile.html'
+    }
+    ProfileButton.addEventListener('click', UpdateProfile);
+</script>
+
+</body>
+
+</html>
