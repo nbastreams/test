@@ -1,251 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Live Sports Games</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scores</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f1f1f1;
-            padding: 20px;
+            overflow: hidden; /* Disable page scrolling */
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        h2 {
+        .game-card {
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
             text-align: center;
             font-weight: bold;
-            color: #333;
-            margin-top: 40px;
+            font-size: 2rem;
         }
 
-        #game-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
         }
 
-        .game-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 40px;
-            width: 100%;
-        }
-
-        .game {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 10px;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            text-align: center;
-        }
-
-        .team-logos {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .team-logo {
-            width: 120px;
-            height: 120px;
-            margin-right: 10px;
-        }
-
-        .game-button {
-            background-color: #333;
+        .box-score-btn {
+            margin-top: 10px;
+            background-color: #000000;
             color: #fff;
             border: none;
+            border-radius: 10px;
+            width: 80%;
+        }
+
+        .status-box {
+            border-radius: 25px;
+            -webkit-text-fill-color: white;
             padding: 10px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 90%;
+            font-size: 1rem;
             font-weight: bold;
-        }
-
-        .game-status {
+            margin-top: 10px;
             margin-bottom: 10px;
-            font-size: 14px;
-            color: #666;
+            margin-left: auto;
+            margin-right: auto;
+            display: inline-list-item;
+            position: relative;
         }
 
-        .divider {
-            margin-top: 20px;
-            border: 0;
-            border-top: 2px solid #ddd;
+        .blink-dot {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% {
+                opacity: 1;
+            }
+            25%, 75% {
+                opacity: 0;
+            }
+        }
+
+        .scrollable-container {
+            max-height: 89vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #000 #fff; /* Modern black scrollbar with white track */
+        }
+
+        .scrollable-container::-webkit-scrollbar {
+            width: 12px;
+            padding-bottom: 100px;
+        }
+
+        .scrollable-container::-webkit-scrollbar-thumb {
+            background-color: #000;
+            border-radius: 10px;
+            padding-bottom: 100px;
+        }
+
+        .scrollable-container::-webkit-scrollbar-track {
+            max-height: calc(100vh - 100px); /* Set to 100% of viewport height minus 100px */
+            background-color: #fff;
+            border-radius: 10px;
+            padding-bottom: 100px;
+        }
+
+        /* Improved dropdown styles */
+        .custom-dropdown {
+            position: relative;
+            display: inline-block;
             width: 100%;
+        }
+
+        .custom-dropdown select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #000;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .custom-dropdown select:focus {
+            outline: none;
+            border-color: #4d94ff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Custom modal size */
+        .modal-dialog {
+            max-width: 80vw;
+            height: 80vh;
+        }
+
+        .modal-content {
+            height: 100%;
+        }
+
+        .modal-body {
+            height: calc(100% - 120px); /* Adjust for header and footer height */
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
+
 <body>
-    <h1>Live Sports Games</h1>
 
-    <div id="game-list">
-        <h2>MLB Games</h2>
-        <div class="game-container" id="mlb-games"></div>
-        <hr class="divider">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: black; border-radius: 10px;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#" style="color: white; font-weight: bold;" id="userBrand">
+            <img src="" alt="" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+        </div>
+        <span class="navbar-text" style="color: white; font-weight: bold; margin-right: 10px;">
+            <script>document.write(new Date().toLocaleDateString());</script>
+        </span>
+        <button id="profilebutton" class="btn btn-outline-light" type="button" style="margin-right: 10px">Profile</button>
+        <button id="signoutbutton" class="btn btn-outline-light" type="button">Sign Out</button>
+    </div>
+</nav>
 
-        <h2>NFL Games</h2>
-        <div class="game-container" id="nfl-games"></div>
-        <hr class="divider">
-
-        <h2>NBA Games</h2>
-        <div class="game-container" id="nba-games"></div>
-        <hr class="divider">
-
-        <h2>NHL Games</h2>
-        <div class="game-container" id="nhl-games"></div>
-        <hr class="divider">
-
-        <h2>WNBA Games</h2>
-        <div class="game-container" id="wnba-games"></div>
-        <hr class="divider">
+<div class="container mt-5">
+    <div class="mb-3 custom-dropdown">
+        <select class="form-control" id="sportSwitcher">
+            <option value="NBA">NBA</option>
+            <option value="NFL">NFL</option>
+            <option value="NHL">NHL</option>
+            <option value="NCAAB">NCAAB</option>
+            <option value="MLB">MLB</option>
+            <option value="NCAAF">NCAAF</option>
+            <option value="WNBA">WNBA</option>
+        </select>
     </div>
 
-    <script>
-        // Function to create a game element
-        function createGameElement(game) {
-            var gameDiv = document.createElement("div");
-            gameDiv.className = "game";
+    <div class="scrollable-container" id="score-container"></div>
+</div>
 
-            var gameStatus = document.createElement("div");
-            gameStatus.className = "game-status";
-            gameStatus.textContent = game.status.type.shortDetail;
+<!-- Bootstrap JS and Popper.js (required for Bootstrap) -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-            var teamLogos = document.createElement("div");
-            teamLogos.className = "team-logos";
+<!-- Axios script -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-            var awayLogo = document.createElement("img");
-            awayLogo.src = game.competitions[0].competitors[1].team.logo;
-            awayLogo.className = "team-logo";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+    import { getDatabase, get, ref, child } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+    import {
+        getAuth,
+        onAuthStateChanged,
+        updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
 
-            var homeLogo = document.createElement("img");
-            homeLogo.src = game.competitions[0].competitors[0].team.logo;
-            homeLogo.className = "team-logo";
+    const firebaseConfig = {
+        apiKey: "AIzaSyDUp3drr_gqdZ6dDajXyIugxCTOsinriVY",
+        authDomain: "mobileapp-27627.firebaseapp.com",
+        databaseURL: "https://mobileapp-27627-default-rtdb.firebaseio.com",
+        projectId: "mobileapp-27627",
+        storageBucket: "mobileapp-27627.appspot.com",
+        messagingSenderId: "178123082096",
+        appId: "1:178123082096:web:f5e0dd41c521cabe0be7b5",
+        measurementId: "G-D2Y9PV5VRY"
+    };
 
-            teamLogos.appendChild(awayLogo);
-            teamLogos.appendChild(homeLogo);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+    const auth = getAuth(app);
+    const dbref = ref(db);
 
-            var button = document.createElement("button");
-            button.textContent = "Watch";
-            button.className = "game-button";
-            button.onclick = function() {
-                window.location.href = game.links[0].href;
-            };
+    let userSelectedFavoriteTeam;
+    let fNameData;
+    let lNameData;
+    let userNBAData;
+    let userNFLData;
+    let userNHLData;
+    let userMLBData;
 
-            gameDiv.appendChild(gameStatus);
-            gameDiv.appendChild(teamLogos);
-            gameDiv.appendChild(button);
+    document.getElementById("sportSwitcher").addEventListener("change", function () {
+        getUserData();
+        fetchScores();
+    });
 
-            return gameDiv;
-        }
+    let getUserData = () => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userID = user.uid;
+                get(child(dbref, 'users/' + userID)).then((snapshot) => {
+                    if (snapshot.exists) {
+                        userNBAData = snapshot.val().NBA_FAV;
+                        userNFLData = snapshot.val().NFL_FAV;
+                        userNHLData = snapshot.val().NHL_FAV;
+                        userMLBData = snapshot.val().MLB_FAV;
+                        fNameData = snapshot.val().firstName;
+                        lNameData = snapshot.val().lastName;
 
-        // Function to create a divider
-        function createDivider(title) {
-            var divider = document.createElement("hr");
-            divider.className = "divider";
-            var dividerTitle = document.createElement("h2");
-            dividerTitle.textContent = title;
-            dividerTitle.style.textAlign = "center";
-            dividerTitle.style.color = "#333";
-            dividerTitle.style.marginTop = "20px";
-            divider.insertAdjacentElement("beforebegin", dividerTitle);
-            return divider;
-        }
-
-        // Fetch MLB games
-        fetch("https://cors-anywhere.herokuapp.com/" + "http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard")
-            .then(response => response.json())
-            .then(data => {
-                var games = data.events;
-
-                var gameList = document.getElementById("mlb-games");
-                var divider = createDivider("MLB Games");
-                gameList.appendChild(divider);
-
-                games.forEach(function(game) {
-                    var gameElement = createGameElement(game);
-                    gameList.appendChild(gameElement);
-                });
-            })
-            .catch(error => console.log(error));
-
-        // Fetch NFL games
-        fetch("http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard")
-            .then(response => response.json())
-            .then(data => {
-                var games = data.events;
-
-                var gameList = document.getElementById("nfl-games");
-                var divider = createDivider("NFL Games");
-                gameList.appendChild(divider);
-
-                games.forEach(function(game) {
-                    var gameElement = createGameElement(game);
-                    gameList.appendChild(gameElement);
-                });
-            })
-            .catch(error => console.log(error));
-
-        // Fetch NBA games
-        fetch("http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard")
-            .then(response => response.json())
-            .then(data => {
-                var games = data.events;
-
-                var gameList = document.getElementById("nba-games");
-                var divider = createDivider("NBA Games");
-                gameList.appendChild(divider);
-
-                games.forEach(function(game) {
-                    var gameElement = createGameElement(game);
-                    gameList.appendChild(gameElement);
-                });
-            })
-            .catch(error => console.log(error));
-
-        // Fetch NHL games
-        fetch("http://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard")
-            .then(response => response.json())
-            .then(data => {
-                var games = data.events;
-
-                var gameList = document.getElementById("nhl-games");
-                var divider = createDivider("NHL Games");
-                gameList.appendChild(divider);
-
-                games.forEach(function(game) {
-                    var gameElement = createGameElement(game);
-                    gameList.appendChild(gameElement);
-                });
-            })
-            .catch(error => console.log(error));
-
-        // Fetch WNBA games
-        fetch("http://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard")
-            .then(response => response.json())
-            .then(data => {
-                var games = data.events;
-
-                var gameList = document.getElementById("wnba-games");
-                var divider = createDivider("WNBA Games");
-                gameList.appendChild(divider);
-
-                games.forEach(function(game) {
-                    var gameElement = createGameElement(game);
-                    gameList.appendChild(gameElement);
-                });
-            })
-            .catch(error => console.log(error));
-    </script>
-</body>
-</html>
+                        document.getElementById("userBrand").innerHTML = `
+                            <img src="https://d1muf25xaso8hp.cloudfront.net/https%3A%2F%2Fmeta-q.cdn.bubble.io%2Ff1512936020165x278911292087286720%2FA.png?w=&h=&auto=compress&dpr=1&fit=max" alt="Profile Pic" style="
